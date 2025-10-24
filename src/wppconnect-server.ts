@@ -19,7 +19,7 @@ export class WPPConnectServer {
         statusFind: (statusSession: string, session: string) => {
           log(`📊 Status: ${statusSession} for session: ${session}`);
         },
-        headless: false, // Set to true for production
+        headless: true, // Required for Railway production
         devtools: false,
         useChrome: true,
         debug: false,
@@ -31,10 +31,48 @@ export class WPPConnectServer {
           '--disable-accelerated-2d-canvas',
           '--no-first-run',
           '--no-zygote',
-          '--disable-gpu'
+          '--disable-gpu',
+          '--disable-web-security',
+          '--disable-features=VizDisplayCompositor',
+          '--disable-extensions',
+          '--disable-plugins',
+          '--disable-images',
+          '--disable-javascript',
+          '--disable-default-apps',
+          '--disable-background-timer-throttling',
+          '--disable-backgrounding-occluded-windows',
+          '--disable-renderer-backgrounding',
+          '--disable-background-networking',
+          '--disable-sync',
+          '--disable-translate',
+          '--hide-scrollbars',
+          '--mute-audio',
+          '--no-first-run',
+          '--disable-infobars',
+          '--disable-dev-shm-usage',
+          '--disable-gpu-sandbox',
+          '--disable-software-rasterizer',
+          '--disable-background-timer-throttling',
+          '--disable-backgrounding-occluded-windows',
+          '--disable-renderer-backgrounding',
+          '--disable-features=TranslateUI',
+          '--disable-ipc-flooding-protection',
+          '--single-process'
         ],
         puppeteerOptions: {
-          executablePath: undefined, // Use system Chrome
+          executablePath: '/usr/bin/chromium-browser', // Use Railway's Chromium
+          args: [
+            '--no-sandbox',
+            '--disable-setuid-sandbox',
+            '--disable-dev-shm-usage',
+            '--disable-accelerated-2d-canvas',
+            '--no-first-run',
+            '--no-zygote',
+            '--disable-gpu',
+            '--disable-web-security',
+            '--disable-features=VizDisplayCompositor',
+            '--single-process'
+          ]
         }
       });
 
