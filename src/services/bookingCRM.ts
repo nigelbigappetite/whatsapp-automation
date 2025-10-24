@@ -1,5 +1,5 @@
-import { supabase } from "../config/supabaseClient";
-import { log, logErr } from "../utils/logger";
+import { supabase } from "../config/supabaseClient.js";
+import { log, logErr } from "../utils/logger.js";
 
 // GHL API configuration
 const GHL_API_KEY = process.env.GHL_API_KEY;

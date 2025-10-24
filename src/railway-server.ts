@@ -1,8 +1,8 @@
 import "dotenv/config";
 import express from "express";
-import { log, logErr } from "./utils/logger";
-import enhancedWebhook from "./routes/enhancedWebhook";
-import { supabase } from "./config/supabaseClient";
+import { log, logErr } from "./utils/logger.js";
+import enhancedWebhook from "./routes/enhancedWebhook.js";
+import { supabase } from "./config/supabaseClient.js";
 
 const app = express();
 app.use(express.json({ limit: "5mb" }));

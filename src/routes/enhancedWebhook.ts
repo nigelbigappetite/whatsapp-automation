@@ -1,7 +1,7 @@
 import express from "express";
-import { log, logErr } from "../utils/logger";
-import { BookingCRM } from "../services/bookingCRM";
-import { supabase } from "../config/supabaseClient";
+import { log, logErr } from "../utils/logger.js";
+import { BookingCRM } from "../services/bookingCRM.js";
+import { supabase } from "../config/supabaseClient.js";
 
 const router = express.Router();
 

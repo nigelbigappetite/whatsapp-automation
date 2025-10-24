@@ -1,6 +1,6 @@
 import express from 'express';
-import { WPPConnectServer } from './wppconnect-server';
-import { log, logErr } from './utils/logger';
+import { WPPConnectServer } from './wppconnect-server.js';
+import { log, logErr } from './utils/logger.js';
 
 const app = express();
 app.use(express.json());

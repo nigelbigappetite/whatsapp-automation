@@ -1,5 +1,5 @@
 import { create, SocketState, Whatsapp } from '@wppconnect-team/wppconnect';
-import { log, logErr } from './utils/logger';
+import { log, logErr } from './utils/logger.js';
 
 export class WPPConnectServer {
   private client: Whatsapp | null = null;
