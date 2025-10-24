@@ -1,0 +1,26 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom components */
+@layer components {
+  .btn-primary {
+    @apply bg-primary-500 text-white px-4 py-2 rounded-lg font-medium transition-colors hover:bg-primary-600 inline-flex items-center justify-center;
+  }
+
+  .btn-secondary {
+    @apply bg-gray-200 text-gray-700 px-4 py-2 rounded-lg font-medium transition-colors hover:bg-gray-300 inline-flex items-center justify-center;
+  }
+
+  .card {
+    @apply bg-white rounded-lg shadow-sm border border-gray-200 p-6;
+  }
+
+  .sidebar {
+    @apply bg-white border-r border-gray-200 w-64 h-screen fixed left-0 top-0;
+  }
+
+  .main-content {
+    @apply ml-64 p-6;
+  }
+}

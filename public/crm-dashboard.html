@@ -1,0 +1,1121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wefixico CRM - WhatsApp Automation Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8fafc;
+            height: 100vh;
+            overflow: hidden;
+            color: #1e293b;
+        }
+        
+        .dashboard {
+            display: flex;
+            height: 100vh;
+            background: #ffffff;
+            box-shadow: 0 0 0 1px #e2e8f0;
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            width: 320px;
+            background: #1e293b;
+            color: #f1f5f9;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid #334155;
+        }
+        
+        .sidebar-header {
+            padding: 24px;
+            background: #0f172a;
+            border-bottom: 1px solid #334155;
+        }
+        
+        .sidebar-header h1 {
+            font-size: 1.5rem;
+            margin-bottom: 6px;
+            font-weight: 600;
+            color: #ffffff;
+            letter-spacing: -0.025em;
+        }
+        
+        .sidebar-header p {
+            color: #94a3b8;
+            font-size: 0.875rem;
+            font-weight: 400;
+        }
+        
+        .search-bar {
+            padding: 16px;
+            border-bottom: 1px solid #334155;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid #475569;
+            border-radius: 8px;
+            background: #334155;
+            color: #f1f5f9;
+            font-size: 0.875rem;
+            font-weight: 400;
+            transition: all 0.2s ease;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            background: #475569;
+        }
+        
+        .search-input::placeholder {
+            color: #94a3b8;
+        }
+        
+        .conversations {
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px 0;
+        }
+        
+        .conversation-item {
+            padding: 16px 20px;
+            border-bottom: 1px solid #334155;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            position: relative;
+            min-height: 72px;
+        }
+        
+        .conversation-item:hover {
+            background: #334155;
+        }
+        
+        .conversation-item.active {
+            background: #3b82f6;
+            border-left: 3px solid #60a5fa;
+        }
+        
+        .conversation-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: #3b82f6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            font-weight: 500;
+            font-size: 1rem;
+            color: #ffffff;
+            flex-shrink: 0;
+        }
+        
+        .conversation-info {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .conversation-name {
+            font-weight: 500;
+            margin-bottom: 4px;
+            font-size: 0.875rem;
+            color: #f1f5f9;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .conversation-preview {
+            font-size: 0.8125rem;
+            color: #94a3b8;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            line-height: 1.3;
+        }
+        
+        .conversation-meta {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 4px;
+            flex-shrink: 0;
+        }
+        
+        .conversation-time {
+            font-size: 0.75rem;
+            color: #94a3b8;
+            font-weight: 400;
+        }
+        
+        .conversation-status {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            position: relative;
+        }
+        
+        .status-online { background: #10b981; }
+        .status-urgent { background: #ef4444; animation: pulse 2s infinite; }
+        .status-pending { background: #f59e0b; }
+        .status-confirmed { background: #10b981; }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        
+        .unread-badge {
+            background: #ef4444;
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.6875rem;
+            font-weight: 600;
+        }
+        
+        /* Main Chat Area */
+        .chat-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #ffffff;
+        }
+        
+        .chat-header {
+            padding: 20px 24px;
+            background: #ffffff;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            min-height: 80px;
+        }
+        
+        .chat-header-info {
+            display: flex;
+            align-items: center;
+        }
+        
+        .chat-header-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: #3b82f6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 16px;
+            color: white;
+            font-weight: 500;
+            font-size: 1.125rem;
+            flex-shrink: 0;
+        }
+        
+        .chat-header-details h3 {
+            font-size: 1.125rem;
+            margin-bottom: 2px;
+            color: #1e293b;
+            font-weight: 600;
+            letter-spacing: -0.025em;
+        }
+        
+        .chat-header-details p {
+            color: #64748b;
+            font-size: 0.875rem;
+            font-weight: 400;
+        }
+        
+        .chat-actions {
+            display: flex;
+            gap: 12px;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+            background: #ffffff;
+            color: #475569;
+        }
+        
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+        }
+        
+        .btn-primary:hover {
+            background: #2563eb;
+            border-color: #2563eb;
+        }
+        
+        .btn-success {
+            background: #10b981;
+            color: white;
+            border-color: #10b981;
+        }
+        
+        .btn-success:hover {
+            background: #059669;
+            border-color: #059669;
+        }
+        
+        .btn-warning {
+            background: #f59e0b;
+            color: white;
+            border-color: #f59e0b;
+        }
+        
+        .btn-warning:hover {
+            background: #d97706;
+            border-color: #d97706;
+        }
+        
+        /* Messages Area */
+        .messages-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px 24px;
+            background: #f8fafc;
+            position: relative;
+        }
+        
+        .message {
+            margin-bottom: 20px;
+            display: flex;
+            align-items: flex-start;
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .message.incoming {
+            justify-content: flex-start;
+        }
+        
+        .message.outgoing {
+            justify-content: flex-end;
+        }
+        
+        .message-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin: 0 10px;
+            flex-shrink: 0;
+        }
+        
+        .message.incoming .message-avatar {
+            background: #3b82f6;
+            color: white;
+        }
+        
+        .message.outgoing .message-avatar {
+            background: #10b981;
+            color: white;
+        }
+        
+        .message-content {
+            max-width: 70%;
+            padding: 12px 16px;
+            border-radius: 12px;
+            position: relative;
+            word-wrap: break-word;
+        }
+        
+        .message.incoming .message-content {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-top-left-radius: 4px;
+        }
+        
+        .message.outgoing .message-content {
+            background: #3b82f6;
+            color: white;
+            border-top-right-radius: 4px;
+        }
+        
+        .message-time {
+            font-size: 0.75rem;
+            margin-top: 6px;
+            opacity: 0.7;
+            font-weight: 400;
+        }
+        
+        .message.outgoing .message-time {
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        /* Booking Cards */
+        .booking-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 16px;
+            margin: 12px 0;
+            border-left: 3px solid #3b82f6;
+        }
+        
+        .booking-card h4 {
+            color: #1e293b;
+            margin-bottom: 12px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .booking-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+        
+        .booking-detail {
+            font-size: 0.8125rem;
+        }
+        
+        .booking-detail strong {
+            color: #475569;
+            display: block;
+            margin-bottom: 4px;
+            font-weight: 500;
+        }
+        
+        .booking-status {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            text-transform: uppercase;
+        }
+        
+        .status-pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        
+        .status-confirmed {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        
+        .status-urgent {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        
+        /* Input Area */
+        .input-area {
+            padding: 20px 24px;
+            background: #ffffff;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            gap: 12px;
+            align-items: flex-end;
+        }
+        
+        .message-input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            resize: none;
+            max-height: 100px;
+            font-family: inherit;
+            font-size: 0.875rem;
+            font-weight: 400;
+            transition: all 0.2s ease;
+            line-height: 1.4;
+        }
+        
+        .message-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        
+        .send-btn {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+        }
+        
+        .send-btn:hover {
+            background: #2563eb;
+        }
+        
+        /* Stats Panel */
+        .stats-panel {
+            background: #0f172a;
+            padding: 16px;
+            border-top: 1px solid #334155;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+        
+        .stat-item {
+            text-align: center;
+            padding: 12px;
+            background: #1e293b;
+            border-radius: 6px;
+        }
+        
+        .stat-value {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #3b82f6;
+            margin-bottom: 4px;
+        }
+        
+        .stat-label {
+            font-size: 0.75rem;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 500;
+        }
+        
+        /* Empty State */
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: #64748b;
+            text-align: center;
+        }
+        
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 16px;
+            color: #cbd5e1;
+        }
+        
+        .empty-state h3 {
+            margin-bottom: 12px;
+            color: #1e293b;
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+        
+        .empty-state p {
+            max-width: 400px;
+            line-height: 1.5;
+            font-size: 0.875rem;
+        }
+        
+        /* Typing Indicator */
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 15px 20px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin: 10px 0;
+        }
+        
+        .typing-dots {
+            display: flex;
+            gap: 4px;
+        }
+        
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #3498db;
+            animation: typing 1.4s infinite;
+        }
+        
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+        
+        @keyframes typing {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-10px); }
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 280px;
+            }
+            
+            .conversation-item {
+                padding: 12px 16px;
+            }
+            
+            .chat-actions {
+                flex-direction: column;
+                gap: 8px;
+            }
+            
+            .btn {
+                padding: 6px 12px;
+                font-size: 0.8125rem;
+            }
+        }
+        
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.1);
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: rgba(52, 152, 219, 0.5);
+            border-radius: 3px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(52, 152, 219, 0.7);
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h1><i class="fas fa-robot"></i> Wefixico CRM</h1>
+                <p>WhatsApp Automation Dashboard</p>
+            </div>
+            
+            <div class="search-bar">
+                <input type="text" class="search-input" placeholder="Search conversations..." id="search-input">
+            </div>
+            
+            <div class="conversations" id="conversations">
+                <!-- Conversations will be loaded here -->
+            </div>
+            
+        </div>
+        
+        <!-- Main Chat Area -->
+        <div class="chat-area">
+            <div class="chat-header">
+                <div class="chat-header-info">
+                    <div class="chat-header-avatar" id="chat-avatar">?</div>
+                    <div class="chat-header-details">
+                        <h3 id="chat-name">Select a conversation</h3>
+                        <p id="chat-status">Choose a customer to start chatting</p>
+                    </div>
+                </div>
+                <div class="chat-actions">
+                    <button class="btn btn-primary" onclick="sendTestMessage()">
+                        <i class="fas fa-paper-plane"></i> Send Test
+                    </button>
+                    <button class="btn btn-success" onclick="generateQuote()">
+                        <i class="fas fa-calculator"></i> Generate Quote
+                    </button>
+                    <button class="btn btn-warning" onclick="bookAppointment()">
+                        <i class="fas fa-calendar-check"></i> Book Now
+                    </button>
+                </div>
+            </div>
+            
+            <div class="messages-area" id="messages-area">
+                <div class="empty-state">
+                    <i class="fas fa-comments"></i>
+                    <h3>Welcome to Wefixico CRM</h3>
+                    <p>Your high-tech WhatsApp booking automation is running. Select a conversation from the sidebar to start managing customer bookings with our AI-powered system.</p>
+                </div>
+            </div>
+            
+            <div class="input-area">
+                <textarea class="message-input" id="message-input" placeholder="Type a message..." rows="1"></textarea>
+                <button class="send-btn" onclick="sendMessage()">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Real-time data from backend
+        let conversations = [];
+        let isConnected = false;
+        let refreshInterval;
+            {
+                id: '447494415568',
+                name: 'John Smith',
+                lastMessage: 'I need urgent garden clearance service tomorrow',
+                time: '2 min ago',
+                status: 'urgent',
+                unread: 3,
+                online: true,
+                messages: [
+                    {
+                        type: 'incoming',
+                        content: 'Hi, I need urgent garden clearance service tomorrow',
+                        time: '14:32',
+                        booking: {
+                            type: 'garden_clearance',
+                            urgency: 'urgent',
+                            date: 'tomorrow',
+                            status: 'pending'
+                        }
+                    },
+                    {
+                        type: 'outgoing',
+                        content: 'Hi John! Thanks for contacting Wefixico. I can help you with urgent garden clearance. Let me get you a quote right away.',
+                        time: '14:33'
+                    },
+                    {
+                        type: 'outgoing',
+                        content: '💰 QUOTE FOR YOUR SERVICE\n\nService: Garden Clearance\nBase Price: £120\nUrgent Fee: +£30\nTotal: £150\n\n📅 Available Slots:\n1. Tomorrow 9am-12pm\n2. Tomorrow 2pm-5pm\n\nPlease reply with your preferred slot number.',
+                        time: '14:33'
+                    }
+                ]
+            },
+            {
+                id: '447123456789',
+                name: 'Sarah Johnson',
+                lastMessage: 'What services do you offer?',
+                time: '5 min ago',
+                status: 'online',
+                unread: 0,
+                online: true,
+                messages: [
+                    {
+                        type: 'incoming',
+                        content: 'What services do you offer?',
+                        time: '14:28'
+                    },
+                    {
+                        type: 'outgoing',
+                        content: 'Hi Sarah! We offer comprehensive waste removal services including garden clearance, house clearance, office clearance, and general waste collection. What type of service are you looking for?',
+                        time: '14:29'
+                    }
+                ]
+            },
+            {
+                id: '447987654321',
+                name: 'Mike Wilson',
+                lastMessage: 'Thanks, I\'ll book slot 1',
+                time: '10 min ago',
+                status: 'confirmed',
+                unread: 0,
+                online: false,
+                messages: [
+                    {
+                        type: 'incoming',
+                        content: 'I need house clearance for next week',
+                        time: '14:20'
+                    },
+                    {
+                        type: 'outgoing',
+                        content: 'Perfect! I can help with house clearance. Let me get you a quote.',
+                        time: '14:21'
+                    },
+                    {
+                        type: 'outgoing',
+                        content: '💰 QUOTE FOR YOUR SERVICE\n\nService: House Clearance\nBase Price: £200\nNext Week: No rush fee\nTotal: £200\n\n📅 Available Slots:\n1. Monday 9am-12pm\n2. Tuesday 2pm-5pm\n3. Wednesday 9am-12pm',
+                        time: '14:21'
+                    },
+                    {
+                        type: 'incoming',
+                        content: 'Thanks, I\'ll book slot 1',
+                        time: '14:22'
+                    },
+                    {
+                        type: 'outgoing',
+                        content: 'Excellent! Your booking is confirmed for Monday 9am-12pm. Booking reference: BK202412011234. We\'ll send you a confirmation text shortly.',
+                        time: '14:22'
+                    }
+                ]
+            },
+            {
+                id: '447555666777',
+                name: 'Emma Davis',
+                lastMessage: 'Can you do office clearance?',
+                time: '15 min ago',
+                status: 'pending',
+                unread: 1,
+                online: true,
+                messages: [
+                    {
+                        type: 'incoming',
+                        content: 'Can you do office clearance?',
+                        time: '14:15'
+                    },
+                    {
+                        type: 'outgoing',
+                        content: 'Absolutely! We specialize in office clearance services. We can handle everything from furniture removal to electronic waste disposal. What size office are we talking about?',
+                        time: '14:16'
+                    }
+                ]
+            },
+            {
+                id: '447888999000',
+                name: 'Robert Brown',
+                lastMessage: 'How much for garden waste collection?',
+                time: '1 hour ago',
+                status: 'pending',
+                unread: 0,
+                online: false,
+                messages: [
+                    {
+                        type: 'incoming',
+                        content: 'How much for garden waste collection?',
+                        time: '13:30'
+                    },
+                    {
+                        type: 'outgoing',
+                        content: 'Our garden waste collection starts at £80 for a standard load. The price depends on the amount and type of waste. Could you describe what you need cleared?',
+                        time: '13:31'
+                    }
+                ]
+            }
+        ];
+        
+        let currentConversation = null;
+        let isTyping = false;
+        
+        // Initialize the dashboard
+        function initDashboard() {
+            loadConversations();
+            updateStats();
+            
+            // Auto-refresh every 3 seconds
+            setInterval(() => {
+                updateStats();
+                // In a real app, you'd fetch new messages here
+            }, 3000);
+            
+            // Search functionality
+            document.getElementById('search-input').addEventListener('input', filterConversations);
+        }
+        
+        // Filter conversations based on search
+        function filterConversations() {
+            const searchTerm = document.getElementById('search-input').value.toLowerCase();
+            const container = document.getElementById('conversations');
+            const items = container.querySelectorAll('.conversation-item');
+            
+            items.forEach(item => {
+                const name = item.querySelector('.conversation-name').textContent.toLowerCase();
+                const preview = item.querySelector('.conversation-preview').textContent.toLowerCase();
+                
+                if (name.includes(searchTerm) || preview.includes(searchTerm)) {
+                    item.style.display = 'flex';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+        
+        // Load conversations in sidebar
+        function loadConversations() {
+            const container = document.getElementById('conversations');
+            container.innerHTML = '';
+            
+            conversations.forEach(conv => {
+                const item = document.createElement('div');
+                item.className = 'conversation-item';
+                item.onclick = () => selectConversation(conv);
+                
+                const statusClass = conv.status === 'urgent' ? 'status-urgent' : 
+                                  conv.status === 'confirmed' ? 'status-confirmed' : 
+                                  conv.status === 'online' ? 'status-online' : 'status-pending';
+                
+                item.innerHTML = `
+                    <div class="conversation-avatar">${conv.name.charAt(0)}</div>
+                    <div class="conversation-info">
+                        <div class="conversation-name">${conv.name}</div>
+                        <div class="conversation-preview">${conv.lastMessage}</div>
+                    </div>
+                    <div class="conversation-meta">
+                        <div class="conversation-time">${conv.time}</div>
+                        <div class="conversation-status ${statusClass}"></div>
+                        ${conv.unread > 0 ? `<div class="unread-badge">${conv.unread}</div>` : ''}
+                    </div>
+                `;
+                
+                container.appendChild(item);
+            });
+        }
+        
+        // Select a conversation
+        function selectConversation(conv) {
+            currentConversation = conv;
+            
+            // Update sidebar selection
+            document.querySelectorAll('.conversation-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            event.currentTarget.classList.add('active');
+            
+            // Update chat header
+            document.getElementById('chat-avatar').textContent = conv.name.charAt(0);
+            document.getElementById('chat-name').textContent = conv.name;
+            document.getElementById('chat-status').textContent = conv.online ? 'Online now' : `Last seen ${conv.time}`;
+            
+            // Load messages
+            loadMessages(conv.messages);
+            
+            // Clear unread count
+            conv.unread = 0;
+            loadConversations();
+        }
+        
+        // Load messages in chat area
+        function loadMessages(messages) {
+            const container = document.getElementById('messages-area');
+            container.innerHTML = '';
+            
+            messages.forEach(msg => {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message ${msg.type}`;
+                
+                let content = `
+                    <div class="message-avatar">${msg.type === 'incoming' ? currentConversation.name.charAt(0) : 'W'}</div>
+                    <div class="message-content">
+                        <div>${msg.content.replace(/\n/g, '<br>')}</div>
+                        <div class="message-time">${msg.time}</div>
+                    </div>
+                `;
+                
+                // Add booking card if it's a booking message
+                if (msg.booking) {
+                    content += `
+                        <div class="booking-card">
+                            <h4><i class="fas fa-clipboard-list"></i> Booking Details</h4>
+                            <div class="booking-details">
+                                <div class="booking-detail">
+                                    <strong>Service:</strong>
+                                    ${msg.booking.type.replace('_', ' ').toUpperCase()}
+                                </div>
+                                <div class="booking-detail">
+                                    <strong>Urgency:</strong>
+                                    <span class="booking-status status-${msg.booking.urgency}">${msg.booking.urgency}</span>
+                                </div>
+                                <div class="booking-detail">
+                                    <strong>Date:</strong>
+                                    ${msg.booking.date}
+                                </div>
+                                <div class="booking-detail">
+                                    <strong>Status:</strong>
+                                    <span class="booking-status status-${msg.booking.status}">${msg.booking.status}</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                messageDiv.innerHTML = content;
+                container.appendChild(messageDiv);
+            });
+            
+            // Scroll to bottom
+            container.scrollTop = container.scrollHeight;
+        }
+        
+        // Update stats
+        function updateStats() {
+            document.getElementById('total-conversations').textContent = conversations.length;
+            document.getElementById('bookings-today').textContent = conversations.filter(c => c.status === 'confirmed').length;
+            document.getElementById('revenue-today').textContent = '£' + (conversations.filter(c => c.status === 'confirmed').length * 150);
+        }
+        
+        // Show typing indicator
+        function showTypingIndicator() {
+            if (isTyping) return;
+            
+            isTyping = true;
+            const container = document.getElementById('messages-area');
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'typing-indicator';
+            typingDiv.id = 'typing-indicator';
+            typingDiv.innerHTML = `
+                <div class="message-avatar">${currentConversation.name.charAt(0)}</div>
+                <div class="typing-dots">
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                </div>
+            `;
+            
+            container.appendChild(typingDiv);
+            container.scrollTop = container.scrollHeight;
+        }
+        
+        // Hide typing indicator
+        function hideTypingIndicator() {
+            const typingDiv = document.getElementById('typing-indicator');
+            if (typingDiv) {
+                typingDiv.remove();
+            }
+            isTyping = false;
+        }
+        
+        // Send message
+        function sendMessage() {
+            const input = document.getElementById('message-input');
+            const message = input.value.trim();
+            
+            if (!message || !currentConversation) return;
+            
+            // Add message to conversation
+            const newMessage = {
+                type: 'outgoing',
+                content: message,
+                time: new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
+            };
+            
+            currentConversation.messages.push(newMessage);
+            loadMessages(currentConversation.messages);
+            
+            input.value = '';
+            input.style.height = 'auto';
+            
+            // Show typing indicator and simulate AI response
+            setTimeout(() => {
+                showTypingIndicator();
+                
+                setTimeout(() => {
+                    hideTypingIndicator();
+                    
+                    const responses = [
+                        "Thanks for your message! I'm processing your request...",
+                        "I understand. Let me check our availability for you.",
+                        "Perfect! I'll get back to you with a quote shortly.",
+                        "Great choice! Your booking is being processed.",
+                        "I'll look into that for you right away.",
+                        "Let me find the best solution for your needs."
+                    ];
+                    
+                    const aiResponse = {
+                        type: 'incoming',
+                        content: responses[Math.floor(Math.random() * responses.length)],
+                        time: new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
+                    };
+                    
+                    currentConversation.messages.push(aiResponse);
+                    loadMessages(currentConversation.messages);
+                }, 2000);
+            }, 500);
+        }
+        
+        // Action buttons
+        function sendTestMessage() {
+            if (!currentConversation) return;
+            
+            const testMessage = {
+                type: 'outgoing',
+                content: '🧪 Test message sent from CRM dashboard',
+                time: new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
+            };
+            
+            currentConversation.messages.push(testMessage);
+            loadMessages(currentConversation.messages);
+        }
+        
+        function generateQuote() {
+            if (!currentConversation) return;
+            
+            const quoteMessage = {
+                type: 'outgoing',
+                content: '💰 QUOTE FOR YOUR SERVICE\n\nService: Garden Clearance\nBase Price: £120\nTotal: £120\n\n📅 Available Slots:\n1. Tomorrow 9am-12pm\n2. Tomorrow 2pm-5pm\n\nPlease reply with your preferred slot number.',
+                time: new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
+            };
+            
+            currentConversation.messages.push(quoteMessage);
+            loadMessages(currentConversation.messages);
+        }
+        
+        function bookAppointment() {
+            if (!currentConversation) return;
+            
+            const bookingMessage = {
+                type: 'outgoing',
+                content: '✅ BOOKING CONFIRMED!\n\nService: Garden Clearance\nDate: Tomorrow 9am-12pm\nBooking Reference: BK' + Date.now().toString().slice(-6) + '\n\nWe\'ll send you a confirmation text shortly. Thank you for choosing Wefixico!',
+                time: new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
+            };
+            
+            currentConversation.messages.push(bookingMessage);
+            currentConversation.status = 'confirmed';
+            loadMessages(currentConversation.messages);
+            loadConversations(); // Refresh sidebar
+        }
+        
+        // Auto-resize textarea
+        document.getElementById('message-input').addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+        });
+        
+        // Send message on Enter (but not Shift+Enter)
+        document.getElementById('message-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+        
+        // Initialize dashboard
+        initDashboard();
+    </script>
+</body>
+</html>

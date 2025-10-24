@@ -1,0 +1,996 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wefixico CRM - Real WhatsApp Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8fafc;
+            height: 100vh;
+            overflow: hidden;
+            color: #1e293b;
+        }
+        
+        .dashboard {
+            display: flex;
+            height: 100vh;
+            background: #ffffff;
+            box-shadow: 0 0 0 1px #e2e8f0;
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            width: 320px;
+            background: #1e293b;
+            color: #f1f5f9;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid #334155;
+        }
+        
+        .sidebar-header {
+            padding: 24px;
+            background: #0f172a;
+            border-bottom: 1px solid #334155;
+        }
+        
+        .sidebar-header h1 {
+            font-size: 1.5rem;
+            margin-bottom: 6px;
+            font-weight: 600;
+            color: #ffffff;
+            letter-spacing: -0.025em;
+        }
+        
+        .sidebar-header p {
+            color: #94a3b8;
+            font-size: 0.875rem;
+            font-weight: 400;
+        }
+        
+        .connection-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 12px;
+            padding: 8px 12px;
+            background: #334155;
+            border-radius: 6px;
+            font-size: 0.875rem;
+        }
+        
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #ef4444;
+            animation: pulse 2s infinite;
+        }
+        
+        .status-dot.connected {
+            background: #10b981;
+            animation: none;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        
+        .search-bar {
+            padding: 16px;
+            border-bottom: 1px solid #334155;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid #475569;
+            border-radius: 8px;
+            background: #334155;
+            color: #f1f5f9;
+            font-size: 0.875rem;
+            font-weight: 400;
+            transition: all 0.2s ease;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            background: #475569;
+        }
+        
+        .search-input::placeholder {
+            color: #94a3b8;
+        }
+        
+        .conversations {
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px 0;
+        }
+        
+        .conversation-item {
+            padding: 16px 20px;
+            border-bottom: 1px solid #334155;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            position: relative;
+            min-height: 72px;
+        }
+        
+        .conversation-item:hover {
+            background: #334155;
+        }
+        
+        .conversation-item.active {
+            background: #3b82f6;
+            border-left: 3px solid #60a5fa;
+        }
+        
+        .conversation-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: #3b82f6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            font-weight: 500;
+            font-size: 1rem;
+            color: #ffffff;
+            flex-shrink: 0;
+        }
+        
+        .conversation-info {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .conversation-name {
+            font-weight: 500;
+            margin-bottom: 4px;
+            font-size: 0.875rem;
+            color: #f1f5f9;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .conversation-preview {
+            font-size: 0.8125rem;
+            color: #94a3b8;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            line-height: 1.3;
+        }
+        
+        .conversation-meta {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 4px;
+            flex-shrink: 0;
+        }
+        
+        .conversation-time {
+            font-size: 0.75rem;
+            color: #94a3b8;
+            font-weight: 400;
+        }
+        
+        .conversation-status {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            position: relative;
+        }
+        
+        .status-online { background: #10b981; }
+        .status-urgent { background: #ef4444; animation: pulse 2s infinite; }
+        .status-pending { background: #f59e0b; }
+        .status-confirmed { background: #10b981; }
+        
+        .unread-badge {
+            background: #ef4444;
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.6875rem;
+            font-weight: 600;
+        }
+        
+        /* Main Chat Area */
+        .chat-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #ffffff;
+        }
+        
+        .chat-header {
+            padding: 20px 24px;
+            background: #ffffff;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            min-height: 80px;
+        }
+        
+        .chat-header-info {
+            display: flex;
+            align-items: center;
+        }
+        
+        .chat-header-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: #3b82f6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 16px;
+            color: white;
+            font-weight: 500;
+            font-size: 1.125rem;
+            flex-shrink: 0;
+        }
+        
+        .chat-header-details h3 {
+            font-size: 1.125rem;
+            margin-bottom: 2px;
+            color: #1e293b;
+            font-weight: 600;
+            letter-spacing: -0.025em;
+        }
+        
+        .chat-header-details p {
+            color: #64748b;
+            font-size: 0.875rem;
+            font-weight: 400;
+        }
+        
+        .chat-actions {
+            display: flex;
+            gap: 12px;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+            background: #ffffff;
+            color: #475569;
+        }
+        
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+        }
+        
+        .btn-primary:hover {
+            background: #2563eb;
+            border-color: #2563eb;
+        }
+        
+        .btn-success {
+            background: #10b981;
+            color: white;
+            border-color: #10b981;
+        }
+        
+        .btn-success:hover {
+            background: #059669;
+            border-color: #059669;
+        }
+        
+        .btn-warning {
+            background: #f59e0b;
+            color: white;
+            border-color: #f59e0b;
+        }
+        
+        .btn-warning:hover {
+            background: #d97706;
+            border-color: #d97706;
+        }
+        
+        /* Messages Area */
+        .messages-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px 24px;
+            background: #f8fafc;
+            position: relative;
+        }
+        
+        .message {
+            margin-bottom: 20px;
+            display: flex;
+            align-items: flex-start;
+        }
+        
+        .message.outgoing {
+            justify-content: flex-end;
+        }
+        
+        .message-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin: 0 10px;
+            flex-shrink: 0;
+        }
+        
+        .message.incoming .message-avatar {
+            background: #3b82f6;
+            color: white;
+        }
+        
+        .message.outgoing .message-avatar {
+            background: #10b981;
+            color: white;
+        }
+        
+        .message-content {
+            max-width: 70%;
+            padding: 12px 16px;
+            border-radius: 12px;
+            position: relative;
+            word-wrap: break-word;
+        }
+        
+        .message.incoming .message-content {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-top-left-radius: 4px;
+        }
+        
+        .message.outgoing .message-content {
+            background: #3b82f6;
+            color: white;
+            border-top-right-radius: 4px;
+        }
+        
+        .message-time {
+            font-size: 0.75rem;
+            margin-top: 6px;
+            opacity: 0.7;
+            font-weight: 400;
+        }
+        
+        .message.outgoing .message-time {
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        /* Input Area */
+        .input-area {
+            padding: 20px 24px;
+            background: #ffffff;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            gap: 12px;
+            align-items: flex-end;
+        }
+        
+        .message-input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            resize: none;
+            max-height: 100px;
+            font-family: inherit;
+            font-size: 0.875rem;
+            font-weight: 400;
+            transition: all 0.2s ease;
+            line-height: 1.4;
+        }
+        
+        .message-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        
+        .send-btn {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+        }
+        
+        .send-btn:hover {
+            background: #2563eb;
+        }
+        
+        /* Empty State */
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: #64748b;
+            text-align: center;
+        }
+        
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 16px;
+            color: #cbd5e1;
+        }
+        
+        .empty-state h3 {
+            margin-bottom: 12px;
+            color: #1e293b;
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+        
+        .empty-state p {
+            max-width: 400px;
+            line-height: 1.5;
+            font-size: 0.875rem;
+        }
+        
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: #64748b;
+        }
+        
+        .loading i {
+            margin-right: 8px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 3px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h1>Wefixico CRM</h1>
+                <p>Real WhatsApp Messages</p>
+                <div class="connection-status">
+                    <div class="status-dot" id="connection-status"></div>
+                    <span id="connection-text">Connecting...</span>
+                </div>
+            </div>
+            
+            <div class="search-bar">
+                <input type="text" class="search-input" placeholder="Search conversations..." id="search-conversations">
+            </div>
+            
+            <div class="conversations" id="conversations">
+                <div class="loading">
+                    <i class="fas fa-spinner"></i>
+                    Loading conversations...
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Chat Area -->
+        <div class="chat-area">
+            <div class="chat-header">
+                <div class="chat-header-info">
+                    <div class="chat-header-avatar" id="current-chat-avatar"></div>
+                    <div class="chat-header-details">
+                        <h3 id="current-chat-name">Select a Conversation</h3>
+                        <p id="current-chat-status">Offline</p>
+                    </div>
+                </div>
+                <div class="chat-actions" id="chat-actions">
+                    <button class="btn btn-primary" id="refresh-btn">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
+                    <!-- Action buttons will be dynamically loaded -->
+                </div>
+            </div>
+            
+            <div class="messages-area" id="messages-area">
+                <div class="empty-state" id="empty-chat-state">
+                    <i class="fas fa-comments"></i>
+                    <h3>No Conversation Selected</h3>
+                    <p>Select a conversation from the sidebar to view real WhatsApp messages.</p>
+                </div>
+            </div>
+            
+            <div class="input-area">
+                <textarea id="message-input" class="message-input" placeholder="Type a message..." rows="1"></textarea>
+                <button id="send-message-btn" class="send-btn">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Real-time data from backend
+        let conversations = [];
+        let currentConversation = null;
+        let isConnected = false;
+        let refreshInterval;
+        
+        // DOM elements
+        const conversationsEl = document.getElementById('conversations');
+        const currentChatAvatarEl = document.getElementById('current-chat-avatar');
+        const currentChatNameEl = document.getElementById('current-chat-name');
+        const currentChatStatusEl = document.getElementById('current-chat-status');
+        const chatActionsEl = document.getElementById('chat-actions');
+        const messagesAreaEl = document.getElementById('messages-area');
+        const emptyChatStateEl = document.getElementById('empty-chat-state');
+        const messageInputEl = document.getElementById('message-input');
+        const sendMessageBtn = document.getElementById('send-message-btn');
+        const searchInput = document.getElementById('search-conversations');
+        const connectionStatusEl = document.getElementById('connection-status');
+        const connectionTextEl = document.getElementById('connection-text');
+        
+        // Initialize dashboard
+        async function initDashboard() {
+            console.log('🚀 Initializing real-time dashboard...');
+            await loadConversations();
+            startRealTimeUpdates();
+            setupEventListeners();
+        }
+        
+        // Load conversations from API
+        async function loadConversations() {
+            try {
+                console.log('📡 Fetching conversations from API...');
+                const response = await fetch('/api/conversations');
+                console.log('📡 Response status:', response.status);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                console.log('📡 API Response:', data);
+                
+                if (data.conversations) {
+                    conversations = data.conversations;
+                    console.log(`✅ Loaded ${conversations.length} conversations`);
+                    renderConversations();
+                    updateConnectionStatus(true);
+                } else {
+                    console.error('❌ No conversations data received');
+                    updateConnectionStatus(false);
+                }
+            } catch (error) {
+                console.error('❌ Error loading conversations:', error);
+                updateConnectionStatus(false);
+                conversationsEl.innerHTML = `
+                    <div class="loading">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        Error loading conversations: ${error.message}
+                    </div>
+                `;
+            }
+        }
+        
+        // Start real-time updates
+        function startRealTimeUpdates() {
+            // Refresh every 5 seconds
+            refreshInterval = setInterval(async () => {
+                await loadConversations();
+            }, 5000);
+            
+            console.log('🔄 Real-time updates started (5s interval)');
+        }
+        
+        // Update connection status
+        function updateConnectionStatus(connected) {
+            isConnected = connected;
+            if (connected) {
+                connectionStatusEl.classList.add('connected');
+                connectionTextEl.textContent = 'Connected';
+            } else {
+                connectionStatusEl.classList.remove('connected');
+                connectionTextEl.textContent = 'Disconnected';
+            }
+        }
+        
+        // Render conversations list
+        function renderConversations(filter = '') {
+            conversationsEl.innerHTML = '';
+            
+            const filteredConversations = conversations.filter(conv => 
+                conv.name.toLowerCase().includes(filter.toLowerCase()) ||
+                conv.lastMessage.toLowerCase().includes(filter.toLowerCase()) ||
+                conv.phone.includes(filter)
+            );
+            
+            if (filteredConversations.length === 0) {
+                conversationsEl.innerHTML = `
+                    <div class="loading">
+                        <i class="fas fa-search"></i>
+                        No conversations found
+                    </div>
+                `;
+                return;
+            }
+            
+            filteredConversations.forEach(conv => {
+                const item = document.createElement('div');
+                item.className = `conversation-item ${currentConversation && currentConversation.id === conv.id ? 'active' : ''}`;
+                item.dataset.id = conv.id;
+                
+                const avatar = conv.name.charAt(0).toUpperCase();
+                const statusClass = getStatusClass(conv);
+                
+                item.innerHTML = `
+                    <div class="conversation-avatar">${avatar}</div>
+                    <div class="conversation-info">
+                        <div class="conversation-name">${conv.name}</div>
+                        <div class="conversation-preview">${conv.lastMessage}</div>
+                    </div>
+                    <div class="conversation-meta">
+                        <div class="conversation-time">${conv.time}</div>
+                        ${conv.unread > 0 ? `<div class="unread-badge">${conv.unread}</div>` : `<div class="conversation-status ${statusClass}"></div>`}
+                    </div>
+                `;
+                
+                item.addEventListener('click', () => selectConversation(conv.id));
+                conversationsEl.appendChild(item);
+            });
+        }
+        
+        // Get status class based on conversation data
+        function getStatusClass(conv) {
+            if (conv.status === 'urgent') return 'status-urgent';
+            if (conv.status === 'confirmed') return 'status-confirmed';
+            if (conv.status === 'pending') return 'status-pending';
+            if (conv.online) return 'status-online';
+            return 'status-offline';
+        }
+        
+        // Select conversation
+        function selectConversation(id) {
+            currentConversation = conversations.find(conv => conv.id === id);
+            if (currentConversation) {
+                renderConversations(searchInput.value); // Re-render to update active state
+                currentChatAvatarEl.textContent = currentConversation.name.charAt(0).toUpperCase();
+                currentChatNameEl.textContent = currentConversation.name;
+                currentChatStatusEl.textContent = currentConversation.online ? 'Online' : 'Offline';
+                
+                renderMessages();
+                renderChatActions();
+                emptyChatStateEl.style.display = 'none';
+                messagesAreaEl.scrollTop = messagesAreaEl.scrollHeight;
+            }
+        }
+        
+        // Render messages
+        function renderMessages() {
+            if (!currentConversation) return;
+            
+            messagesAreaEl.innerHTML = '';
+            
+            // Sort messages by creation time
+            const sortedMessages = currentConversation.messages.sort((a, b) => 
+                new Date(a.created_at) - new Date(b.created_at)
+            );
+            
+            sortedMessages.forEach(msg => {
+                const messageEl = document.createElement('div');
+                messageEl.className = `message ${msg.type}`;
+                
+                const avatar = msg.type === 'incoming' 
+                    ? currentConversation.name.charAt(0).toUpperCase()
+                    : 'You';
+                
+                messageEl.innerHTML = `
+                    ${msg.type === 'incoming' ? `<div class="message-avatar">${avatar}</div>` : ''}
+                    <div class="message-content">
+                        ${msg.content.replace(/\n/g, '<br>')}
+                        <div class="message-time">${msg.time}</div>
+                    </div>
+                    ${msg.type === 'outgoing' ? `<div class="message-avatar">${avatar}</div>` : ''}
+                `;
+                
+                messagesAreaEl.appendChild(messageEl);
+            });
+            
+            messagesAreaEl.scrollTop = messagesAreaEl.scrollHeight;
+        }
+        
+        // Render chat actions
+        function renderChatActions() {
+            if (!currentConversation) return;
+            
+            chatActionsEl.innerHTML = `
+                <button class="btn btn-primary" id="send-test-message-btn">
+                    <i class="fas fa-paper-plane"></i> Send Test
+                </button>
+                <button class="btn btn-warning" id="generate-quote-btn">
+                    <i class="fas fa-calculator"></i> Generate Quote
+                </button>
+                <button class="btn btn-success" id="book-now-btn">
+                    <i class="fas fa-calendar-check"></i> Book Now
+                </button>
+            `;
+            
+            document.getElementById('send-test-message-btn').addEventListener('click', sendTestMessage);
+            document.getElementById('generate-quote-btn').addEventListener('click', generateQuote);
+            document.getElementById('book-now-btn').addEventListener('click', bookNow);
+        }
+        
+        // Send test message
+        async function sendTestMessage() {
+            if (!currentConversation) return;
+            
+            const testMessage = `Test message for ${currentConversation.name}`;
+            await sendWhatsAppMessage(currentConversation.phone, testMessage);
+            
+            // Add to local messages for display
+            currentConversation.messages.push({
+                type: 'outgoing',
+                content: testMessage,
+                time: new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }),
+                created_at: new Date().toISOString()
+            });
+            
+            renderMessages();
+        }
+        
+        // Generate quote
+        async function generateQuote() {
+            if (!currentConversation) return;
+            
+            const quoteMessage = `Generating a quote for ${currentConversation.name}'s service...`;
+            await sendWhatsAppMessage(currentConversation.phone, quoteMessage);
+            
+            // Simulate AI response with a booking card
+            currentConversation.messages.push({
+                type: 'outgoing',
+                content: quoteMessage,
+                time: new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }),
+                created_at: new Date().toISOString()
+            });
+            
+            const quoteResponse = `💰 QUOTE FOR YOUR SERVICE
+
+Service: Garden Clearance
+Base Price: £120
+Urgent Fee: +£30
+Total: £150
+
+📅 Available Slots:
+1. Tomorrow 9am-12pm
+2. Tomorrow 2pm-5pm
+
+Please reply with your preferred slot number.`;
+            
+            currentConversation.messages.push({
+                type: 'outgoing',
+                content: quoteResponse,
+                time: new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }),
+                created_at: new Date().toISOString()
+            });
+            
+            renderMessages();
+        }
+        
+        // Book now
+        async function bookNow() {
+            if (!currentConversation) return;
+            
+            const bookingMessage = `Booking confirmed for ${currentConversation.name}!`;
+            await sendWhatsAppMessage(currentConversation.phone, bookingMessage);
+            
+            // Simulate booking confirmation
+            currentConversation.messages.push({
+                type: 'outgoing',
+                content: bookingMessage,
+                time: new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }),
+                created_at: new Date().toISOString()
+            });
+            
+            const confirmationMessage = `✅ BOOKING CONFIRMED
+
+Service: Garden Clearance
+Date: Tomorrow
+Time: 9am-12pm
+Reference: BK${Date.now().toString().slice(-6)}
+
+We'll send you a confirmation text shortly. Thank you for choosing Wefixico!`;
+            
+            currentConversation.messages.push({
+                type: 'outgoing',
+                content: confirmationMessage,
+                time: new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }),
+                created_at: new Date().toISOString()
+            });
+            
+            renderMessages();
+        }
+        
+        // Send WhatsApp message directly via WPPConnect API
+        async function sendWhatsAppMessage(phone, message) {
+            try {
+                console.log('📤 Sending message to:', phone, 'Message:', message);
+                
+                const response = await fetch('http://localhost:8080/api/wefixico/send-message', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        phone: phone,
+                        message: message
+                    })
+                });
+                
+                console.log('📤 Response status:', response.status);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log('✅ Message sent via WPPConnect:', data);
+                    
+                    // Store outgoing message in database
+                    await storeOutgoingMessage(phone, message);
+                } else {
+                    const errorText = await response.text();
+                    console.error('❌ Failed to send message via WPPConnect:', response.status, errorText);
+                }
+            } catch (error) {
+                console.error('❌ Error sending message via WPPConnect:', error);
+            }
+        }
+        
+        // Store outgoing message in database
+        async function storeOutgoingMessage(phone, message) {
+            try {
+                const response = await fetch('/api/store-outgoing-message', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        session: 'wefixico',
+                        to: phone,
+                        body: message,
+                        type: 'text'
+                    })
+                });
+                
+                if (response.ok) {
+                    console.log('✅ Outgoing message stored in database');
+                } else {
+                    console.error('❌ Failed to store outgoing message');
+                }
+            } catch (error) {
+                console.error('❌ Error storing outgoing message:', error);
+            }
+        }
+        
+        // Setup event listeners
+        function setupEventListeners() {
+            // Refresh button
+            document.getElementById('refresh-btn').addEventListener('click', async () => {
+                console.log('🔄 Manual refresh triggered');
+                await loadConversations();
+            });
+            
+            // Search functionality
+            searchInput.addEventListener('input', (e) => {
+                renderConversations(e.target.value);
+            });
+            
+            // Message input
+            messageInputEl.addEventListener('keypress', async (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessageBtn.click();
+                }
+            });
+            
+            sendMessageBtn.addEventListener('click', async () => {
+                if (!currentConversation) return;
+                
+                const messageText = messageInputEl.value.trim();
+                if (messageText) {
+                    await sendWhatsAppMessage(currentConversation.phone, messageText);
+                    
+                    // Add to local messages
+                    currentConversation.messages.push({
+                        type: 'outgoing',
+                        content: messageText,
+                        time: new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }),
+                        created_at: new Date().toISOString()
+                    });
+                    
+                    renderMessages();
+                    messageInputEl.value = '';
+                }
+            });
+            
+            // Auto-resize textarea
+            messageInputEl.addEventListener('input', () => {
+                messageInputEl.style.height = 'auto';
+                messageInputEl.style.height = messageInputEl.scrollHeight + 'px';
+            });
+        }
+        
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', () => {
+            if (refreshInterval) {
+                clearInterval(refreshInterval);
+            }
+        });
+        
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', initDashboard);
+    </script>
+</body>
+</html>
