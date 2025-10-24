@@ -6,7 +6,7 @@ const app = express();
 app.use(express.json());
 
 // Add CORS headers to allow dashboard to call WPPConnect API
-app.use((req, res, next) => {
+app.use((req: any, res: any, next: any) => {
   res.header('Access-Control-Allow-Origin', '*');
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
@@ -28,7 +28,7 @@ wppServer.start().catch((error) => {
 });
 
 // API endpoint for sending messages
-app.post('/api/:session/send-message', async (req, res) => {
+app.post('/api/:session/send-message', async (req: any, res: any) => {
   try {
     const { session } = req.params;
     const { phone, message } = req.body;
@@ -59,7 +59,7 @@ app.post('/api/:session/send-message', async (req, res) => {
 });
 
 // Health check endpoint
-app.get('/health', (req, res) => {
+app.get('/health', (req: any, res: any) => {
   res.json({
     status: 'running',
     wppconnect_ready: wppServer.isReady(),

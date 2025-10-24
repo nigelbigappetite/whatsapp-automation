@@ -76,8 +76,8 @@ export class WPPConnectServer {
         }
       });
 
-      // Store outgoing messages in database
-      this.client.onMessageSent = async (message: any) => {
+            // Store outgoing messages in database
+            (this.client as any).onMessageSent = async (message: any) => {
         log('📤 Outgoing message sent:', {
           to: message.to,
           body: message.body,
