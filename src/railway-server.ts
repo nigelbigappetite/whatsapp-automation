@@ -132,8 +132,25 @@ app.post("/api/store-outgoing-message", async (req: any, res: any) => {
 app.use("/", enhancedWebhook);
 
 const PORT = Number(process.env.PORT || 3000);
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   log(`🚀 Railway CRM Server running on port ${PORT}`);
   log(`🌐 Environment: ${process.env.NODE_ENV}`);
   log(`📡 Health check: http://localhost:${PORT}/health`);
+});
+
+// Graceful shutdown handling
+process.on('SIGTERM', () => {
+  log('🛑 Received SIGTERM, shutting down gracefully...');
+  server.close(() => {
+    log('✅ Server closed');
+    process.exit(0);
+  });
+});
+
+process.on('SIGINT', () => {
+  log('🛑 Received SIGINT, shutting down gracefully...');
+  server.close(() => {
+    log('✅ Server closed');
+    process.exit(0);
+  });
 });

@@ -10,7 +10,7 @@
     "wppconnect-dev": "tsx src/wppconnect-server.ts",
     "start:production": "npm run build && npm run start",
     "start:wppconnect": "npm run build && node --enable-source-maps dist/wppconnect-api-server.js",
-    "start:railway": "npm run build && node --enable-source-maps dist/railway-server.js"
+    "start:railway": "npm run build && node start-server.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.45.0",
