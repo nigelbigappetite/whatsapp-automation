@@ -9,17 +9,15 @@
     "wppconnect": "tsx src/wppconnect-api-server.ts",
     "wppconnect-dev": "tsx src/wppconnect-server.ts",
     "start:production": "npm run build && npm run start",
-    "start:wppconnect": "npm run build && node --enable-source-maps dist/wppconnect-api-server.js",
+    "start:wppconnect": "npm run build && node start-webhook.js",
     "start:railway": "npm run build && node start-server.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.45.0",
-    "@wppconnect-team/wppconnect": "^1.37.5",
     "axios": "^1.7.2",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
     "openai": "^4.67.3",
-    "puppeteer": "^22.0.0",
     "sharp": "^0.33.5"
   },
   "devDependencies": {
