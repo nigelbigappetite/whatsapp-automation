@@ -1,9 +1,14 @@
 import express from 'express';
 import { WPPConnectServer } from './wppconnect-server.js';
+import { SimpleWPPConnectServer } from './wppconnect-simple.js';
 import { log, logErr } from './utils/logger.js';
 
 const app = express();
 app.use(express.json());
+
+// Use simple version for Railway deployment
+const isRailway = process.env.RAILWAY_ENVIRONMENT === 'production' || process.env.NODE_ENV === 'production';
+const wppServer = isRailway ? new SimpleWPPConnectServer() : new WPPConnectServer();
 
 // Add CORS headers to allow dashboard to call WPPConnect API
 app.use((req: any, res: any, next: any) => {
@@ -17,9 +22,6 @@ app.use((req: any, res: any, next: any) => {
     next();
   }
 });
-
-// Initialize WPPConnect server
-const wppServer = new WPPConnectServer();
 
 // Start WPPConnect server
 wppServer.start().catch((error) => {

@@ -6,10 +6,14 @@ export class WPPConnectServer {
   private isConnected = false;
 
   async start(): Promise<void> {
-    try {
-      log('🚀 Starting WPPConnect server...');
-      
-      this.client = await create({
+    const maxRetries = 3;
+    let retryCount = 0;
+    
+    while (retryCount < maxRetries) {
+      try {
+        log(`🚀 Starting WPPConnect server... (attempt ${retryCount + 1}/${maxRetries})`);
+        
+        this.client = await create({
         session: process.env.BRAND_SESSION || 'wefixico',
         catchQR: (base64Qr: string) => {
           log('📱 QR Code received. Please scan with WhatsApp:');
@@ -19,7 +23,7 @@ export class WPPConnectServer {
         statusFind: (statusSession: string, session: string) => {
           log(`📊 Status: ${statusSession} for session: ${session}`);
         },
-        headless: true, // Required for Railway production
+        headless: true,
         devtools: false,
         useChrome: true,
         debug: false,
@@ -34,11 +38,7 @@ export class WPPConnectServer {
           '--disable-gpu',
           '--disable-web-security',
           '--disable-features=VizDisplayCompositor',
-          '--disable-extensions',
-          '--disable-plugins',
-          '--disable-images',
-          '--disable-javascript',
-          '--disable-default-apps',
+          '--single-process',
           '--disable-background-timer-throttling',
           '--disable-backgrounding-occluded-windows',
           '--disable-renderer-backgrounding',
@@ -47,20 +47,14 @@ export class WPPConnectServer {
           '--disable-translate',
           '--hide-scrollbars',
           '--mute-audio',
-          '--no-first-run',
           '--disable-infobars',
-          '--disable-dev-shm-usage',
           '--disable-gpu-sandbox',
           '--disable-software-rasterizer',
-          '--disable-background-timer-throttling',
-          '--disable-backgrounding-occluded-windows',
-          '--disable-renderer-backgrounding',
           '--disable-features=TranslateUI',
-          '--disable-ipc-flooding-protection',
-          '--single-process'
+          '--disable-ipc-flooding-protection'
         ],
         puppeteerOptions: {
-          executablePath: '/usr/bin/chromium-browser', // Use Railway's Chromium
+          executablePath: '/usr/bin/chromium-browser',
           args: [
             '--no-sandbox',
             '--disable-setuid-sandbox',
@@ -72,7 +66,9 @@ export class WPPConnectServer {
             '--disable-web-security',
             '--disable-features=VizDisplayCompositor',
             '--single-process'
-          ]
+          ],
+          timeout: 60000,
+          protocolTimeout: 60000
         }
       });
 
@@ -147,10 +143,20 @@ export class WPPConnectServer {
         }
       };
 
-      log('✅ WPPConnect server started successfully');
-    } catch (error) {
-      logErr('❌ Error starting WPPConnect server:', error);
-      throw error;
+        log('✅ WPPConnect server started successfully');
+        return; // Success, exit retry loop
+      } catch (error) {
+        retryCount++;
+        logErr(`❌ Error starting WPPConnect server (attempt ${retryCount}/${maxRetries}):`, error);
+        
+        if (retryCount >= maxRetries) {
+          logErr('❌ Failed to start WPPConnect server after all retries');
+          throw error;
+        }
+        
+        log(`⏳ Retrying in 5 seconds... (${retryCount}/${maxRetries})`);
+        await new Promise(resolve => setTimeout(resolve, 5000));
+      }
     }
   }
 
