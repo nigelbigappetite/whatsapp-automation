@@ -1,0 +1,26 @@
+# Minimal Dockerfile for Railway
+FROM node:20-alpine
+
+# Install only curl for health checks
+RUN apk add --no-cache curl
+
+# Set working directory
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+
+# Install dependencies
+RUN npm ci --only=production
+
+# Copy source code
+COPY . .
+
+# Build the application
+RUN npm run build
+
+# Expose port
+EXPOSE 8080
+
+# Start the minimal server
+CMD ["npm", "run", "start:wppconnect"]
