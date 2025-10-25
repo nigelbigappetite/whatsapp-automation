@@ -6,8 +6,6 @@
     "dev": "tsx src/index.ts",
     "start": "node --enable-source-maps dist/index.js",
     "build": "tsc",
-    "wppconnect": "tsx src/wppconnect-api-server.ts",
-    "wppconnect-dev": "tsx src/wppconnect-server.ts",
     "start:production": "npm run build && npm run start",
     "start:wppconnect": "npm run build && node start-webhook.js",
     "start:railway": "npm run build && node start-server.js"

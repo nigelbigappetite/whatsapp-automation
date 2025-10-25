@@ -1,16 +1,12 @@
 #!/usr/bin/env node
 
-// Simple startup script for WPPConnect on Railway
-console.log('🚀 Starting WPPConnect Service...');
-console.log('📊 Node.js version:', process.version);
-console.log('🌐 Environment:', process.env.NODE_ENV || 'development');
+// Simple startup script for WhatsApp Webhook Server on Railway
+console.log('🚀 Starting WhatsApp Webhook Service...');
 
-// Start the WPPConnect server
-import('./dist/wppconnect-api-server.js')
-  .then(() => {
-    console.log('✅ WPPConnect server started successfully');
-  })
-  .catch((error) => {
-    console.error('❌ Failed to start WPPConnect server:', error);
+// Import and start the webhook server
+import('./dist/whatsapp-webhook-server.js').then(() => {
+    console.log('✅ WhatsApp Webhook server started successfully');
+}).catch((error) => {
+    console.error('❌ Failed to start WhatsApp Webhook server:', error);
     process.exit(1);
-  });
+});
